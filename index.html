@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sindicación de Contenidos — Ale Guerrero 1º ASIR</title>
+  <link rel="icon" type="image/png" href="images/LOGO.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#070a0f; --surface:#0d1219; --border:#1a2233;
+      --accent:#00e5ff; --accent2:#ff3c6e; --gold:#f5c842;
+      --text:#cfd8e8; --muted:#5a6a82;
+      --tag:#ff7b72; --attr:#79c0ff; --val:#a5f3a0;
+      --radius:10px; --mono:'Space Mono',monospace; --sans:'Syne',sans-serif;
+    }
+    html { scroll-behavior:smooth; }
+    body { background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; overflow-x:hidden; }
+    #cursor-glow {
+      pointer-events:none; position:fixed; width:420px; height:420px; border-radius:50%;
+      background:radial-gradient(circle,rgba(0,229,255,.06) 0%,transparent 70%);
+      transform:translate(-50%,-50%); transition:left .12s ease,top .12s ease; z-index:0;
+    }
+    body::before {
+      content:''; position:fixed; inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity:.025; pointer-events:none; z-index:1;
+    }
+    nav {
+      position:sticky; top:0; z-index:100;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 40px; background:rgba(7,10,15,.85);
+      border-bottom:1px solid var(--border); backdrop-filter:blur(18px);
+    }
+    .nav-logo { font-family:var(--mono); font-size:.85rem; color:var(--accent); letter-spacing:.12em; }
+    .nav-logo span { color:var(--muted); }
+    .nav-links { display:flex; gap:32px; }
+    .nav-links a { font-size:.8rem; font-family:var(--mono); color:var(--muted); text-decoration:none; letter-spacing:.08em; transition:color .2s; }
+    .nav-links a:hover { color:var(--accent); }
+    .hero {
+      position:relative; min-height:92vh;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-align:center; padding:80px 40px; overflow:hidden;
+    }
+    .hero::after {
+      content:''; position:absolute; inset:0;
+      background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);
+      background-size:60px 60px;
+      mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%);
+      pointer-events:none;
+    }
+    .hero-eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.25em; color:var(--accent); background:rgba(0,229,255,.08); border:1px solid rgba(0,229,255,.2); padding:5px 16px; border-radius:99px; margin-bottom:28px; display:inline-block; }
+    .hero h1 { font-size:clamp(2.8rem,8vw,7rem); font-weight:800; line-height:1.0; letter-spacing:-.02em; color:#fff; }
+    .hero h1 .hl { color:transparent; -webkit-text-stroke:2px var(--accent); }
+    .hero-sub { max-width:560px; margin:28px auto 0; font-size:1.05rem; color:var(--muted); line-height:1.75; }
+    .hero-sub strong { color:#fff; }
+    .hero-cta { display:flex; gap:16px; margin-top:48px; flex-wrap:wrap; justify-content:center; }
+    .btn { font-family:var(--mono); font-size:.82rem; letter-spacing:.08em; padding:12px 28px; border-radius:var(--radius); cursor:pointer; text-decoration:none; transition:all .25s; }
+    .btn-p { background:var(--accent); color:#070a0f; border:2px solid var(--accent); font-weight:700; }
+    .btn-p:hover { background:transparent; color:var(--accent); }
+    .btn-g { background:transparent; color:var(--text); border:1px solid var(--border); }
+    .btn-g:hover { border-color:var(--accent); color:var(--accent); }
+    .bf { position:absolute; font-family:var(--mono); font-size:.68rem; padding:8px 14px; border-radius:8px; letter-spacing:.1em; animation:float 4s ease-in-out infinite; pointer-events:none; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .bf1 { top:22%; left:8%; background:rgba(0,229,255,.08); border:1px solid rgba(0,229,255,.2); color:var(--accent); }
+    .bf2 { top:30%; right:7%; background:rgba(255,60,110,.08); border:1px solid rgba(255,60,110,.2); color:var(--accent2); animation-delay:1.2s; }
+    .bf3 { bottom:28%; left:12%; background:rgba(245,200,66,.08); border:1px solid rgba(245,200,66,.2); color:var(--gold); animation-delay:2.4s; }
+    section { position:relative; z-index:2; }
+    .sh { display:flex; align-items:center; gap:16px; margin-bottom:56px; }
+    .stag { font-family:var(--mono); font-size:.7rem; letter-spacing:.2em; color:var(--accent); background:rgba(0,229,255,.07); border:1px solid rgba(0,229,255,.15); padding:4px 12px; border-radius:4px; white-space:nowrap; }
+    .stitle { font-size:clamp(1.8rem,4vw,2.8rem); font-weight:800; color:#fff; }
+    .lsep { flex:1; height:1px; background:linear-gradient(90deg,var(--border),transparent); }
+    .wrap { max-width:1200px; margin:0 auto; padding:100px 40px; }
+    .ig { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start; }
+    .it h3 { font-size:1.45rem; font-weight:800; color:#fff; margin-bottom:18px; }
+    .it p { font-family:var(--mono); font-size:.88rem; line-height:1.9; color:var(--muted); margin-bottom:16px; }
+    .it p strong { color:var(--text); }
+    .abox { background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--gold); border-radius:var(--radius); padding:28px; margin-top:28px; }
+    .abox .lbl { font-family:var(--mono); font-size:.65rem; letter-spacing:.2em; color:var(--gold); margin-bottom:12px; display:block; }
+    .abox p { font-size:.95rem; line-height:1.8; color:var(--text); }
+    .xbox { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .xhead { padding:14px 20px; background:rgba(255,255,255,.03); border-bottom:1px solid var(--border); font-family:var(--mono); font-size:.72rem; color:var(--muted); letter-spacing:.12em; display:flex; align-items:center; gap:10px; }
+    .dot { width:10px; height:10px; border-radius:50%; }
+    .dr{background:#ff5f57;} .dy{background:#febc2e;} .dg{background:#28c840;}
+    .xbox pre { padding:24px; font-family:var(--mono); font-size:.82rem; line-height:2; overflow-x:auto; }
+    .xt{color:var(--tag);} .xa{color:var(--attr);} .xv{color:var(--val);} .xc{color:var(--muted);font-style:italic;}
+    .ann { position:relative; cursor:help; }
+    .ann::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 8px); left:0; background:#1e2a3a; border:1px solid var(--accent); color:var(--accent); font-size:.68rem; padding:5px 10px; border-radius:6px; white-space:nowrap; pointer-events:none; opacity:0; transform:translateY(4px); transition:all .2s; z-index:99; }
+    .ann:hover::after { opacity:1; transform:translateY(0); }
+    #formatos { padding:100px 40px; background:var(--surface); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+    #formatos .inner { max-width:1200px; margin:0 auto; }
+    .ftabs { display:flex; background:rgba(0,0,0,.4); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:32px; width:fit-content; }
+    .ftab { font-family:var(--mono); font-size:.78rem; letter-spacing:.1em; padding:12px 28px; background:transparent; border:none; color:var(--muted); cursor:pointer; transition:all .2s; border-right:1px solid var(--border); }
+    .ftab:last-child{border-right:none;}
+    .ftab.active{background:var(--accent);color:#070a0f;font-weight:700;}
+    .ftab:hover:not(.active){background:rgba(255,255,255,.04);color:var(--text);}
+    .fbody{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
+    .fi h3{font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:12px;}
+    .fi .meta{font-family:var(--mono);font-size:.72rem;color:var(--muted);letter-spacing:.1em;margin-bottom:20px;}
+    .fi p{font-family:var(--mono);font-size:.87rem;line-height:1.9;color:var(--muted);margin-bottom:16px;}
+    .fi strong{color:var(--text);}
+    .pc{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
+    .pro,.con{background:rgba(0,0,0,.3);border-radius:8px;padding:16px;}
+    .pro{border-top:3px solid #28c840;} .con{border-top:3px solid var(--accent2);}
+    .pro .bl{color:#28c840;} .con .bl{color:var(--accent2);}
+    .bl{font-family:var(--mono);font-size:.65rem;letter-spacing:.15em;margin-bottom:10px;}
+    .pro li,.con li{font-family:var(--mono);font-size:.78rem;line-height:1.8;color:var(--muted);list-style:none;padding-left:14px;position:relative;}
+    .pro li::before{content:'+';position:absolute;left:0;color:#28c840;}
+    .con li::before{content:'−';position:absolute;left:0;color:var(--accent2);}
+    .flow{display:flex;align-items:center;justify-content:center;margin:48px 0;flex-wrap:wrap;}
+    .fn{display:flex;flex-direction:column;align-items:center;text-align:center;}
+    .fi2{width:72px;height:72px;background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:12px;transition:all .3s;}
+    .fn:hover .fi2{border-color:var(--accent);background:rgba(0,229,255,.06);transform:translateY(-6px);}
+    .fl{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;color:var(--muted);}
+    .fa{font-size:1.6rem;color:var(--border);padding:0 24px;padding-bottom:28px;}
+    .fdg{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:32px;}
+    .fd{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;}
+    .fd .step{font-family:var(--mono);font-size:.65rem;letter-spacing:.2em;color:var(--accent);margin-bottom:10px;}
+    .fd h4{font-size:1rem;font-weight:700;color:#fff;margin-bottom:10px;}
+    .fd p{font-family:var(--mono);font-size:.8rem;line-height:1.8;color:var(--muted);}
+    #decoder{padding:100px 40px;background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+    #decoder .inner{max-width:1200px;margin:0 auto;}
+    .tw{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+    .tl{background:#0d1117;border-right:1px solid var(--border);}
+    .tr{background:#070a0f;}
+    .th{padding:12px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.72rem;color:var(--muted);letter-spacing:.1em;}
+    .tb{padding:28px;}
+    .xc2{display:block;padding:5px 8px;border-radius:5px;cursor:pointer;transition:background .2s;font-family:var(--mono);font-size:.82rem;line-height:1.7;color:var(--tag);}
+    .xc2:hover{background:rgba(0,229,255,.08);}
+    .xc2.active{background:rgba(0,229,255,.12);border-left:3px solid var(--accent);padding-left:10px;}
+    .lcard{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--radius);padding:24px;animation:fslide .35s ease;}
+    @keyframes fslide{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .lbadge{display:inline-block;font-family:var(--mono);font-size:.65rem;letter-spacing:.15em;padding:3px 10px;border-radius:4px;background:rgba(0,229,255,.1);color:var(--accent);border:1px solid rgba(0,229,255,.2);margin-bottom:14px;}
+    .lcard h3{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:12px;}
+    .lcard p{font-family:var(--mono);font-size:.83rem;line-height:1.8;color:var(--muted);}
+    .sbar{padding:10px 20px;background:rgba(0,0,0,.4);border-top:1px solid var(--border);font-family:var(--mono);font-size:.68rem;color:var(--muted);display:flex;align-items:center;gap:8px;}
+    .sdot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .rl{display:grid;grid-template-columns:300px 1fr;gap:32px;min-height:600px;}
+    .rsb{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+    .sbh{padding:16px 20px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--muted);}
+    .fib{display:block;width:100%;text-align:left;background:transparent;border:none;border-bottom:1px solid var(--border);padding:18px 20px;cursor:pointer;transition:background .2s;color:var(--text);font-family:var(--sans);}
+    .fib:hover{background:rgba(255,255,255,.04);}
+    .fib.active{background:rgba(0,229,255,.06);border-left:3px solid var(--accent);}
+    .fic{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;color:var(--accent);margin-bottom:6px;}
+    .fit{font-size:.9rem;font-weight:600;color:#fff;margin-bottom:6px;line-height:1.3;}
+    .fid{font-family:var(--mono);font-size:.68rem;color:var(--muted);}
+    .rc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:40px;display:flex;flex-direction:column;}
+    .rccat{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--accent);margin-bottom:16px;}
+    .rctit{font-size:1.8rem;font-weight:800;color:#fff;line-height:1.25;margin-bottom:16px;}
+    .rcmet{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border);}
+    .rcbod{font-family:var(--mono);font-size:.88rem;line-height:2;color:var(--muted);flex:1;}
+    .rcxml{margin-top:32px;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+    .xmlhb{padding:10px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.65rem;letter-spacing:.15em;color:var(--muted);display:flex;justify-content:space-between;}
+    .xmls pre{padding:20px;font-family:var(--mono);font-size:.78rem;line-height:1.8;overflow-x:auto;color:var(--text);}
+    .es{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:var(--muted);font-family:var(--mono);font-size:.85rem;gap:12px;}
+    .es .ei{font-size:3rem;opacity:.3;}
+    #historia{padding:100px 40px;background:var(--surface);border-top:1px solid var(--border);}
+    #historia .inner{max-width:900px;margin:0 auto;}
+    .tl2{position:relative;padding-left:40px;}
+    .tl2::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),transparent);}
+    .tli{position:relative;margin-bottom:48px;}
+    .tldot{position:absolute;left:-37px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--bg);border:2px solid var(--accent);}
+    .tly{font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;color:var(--accent);margin-bottom:8px;}
+    .tli h4{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:10px;}
+    .tli p{font-family:var(--mono);font-size:.83rem;line-height:1.9;color:var(--muted);}
+    .bbg{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:60px;}
+    .bbt h3{font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:18px;}
+    .bbt p{font-family:var(--mono);font-size:.87rem;line-height:1.9;color:var(--muted);margin-bottom:16px;}
+    .bbt strong{color:var(--text);}
+    .bbd{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;display:flex;flex-direction:column;gap:16px;}
+    .bbn{border-radius:8px;padding:16px;}
+    .bbn .nn{font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;margin-bottom:6px;}
+    .bbn p{font-family:var(--mono);font-size:.82rem;color:var(--text);}
+    .bba{text-align:center;font-size:1.4rem;color:var(--muted);}
+    .bbs{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:60px;}
+    .cbox{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent2);border-radius:var(--radius);padding:32px;max-width:800px;}
+    .cbox .cl{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;color:var(--accent2);display:block;margin-bottom:14px;}
+    .cbox p{font-family:var(--mono);font-size:.9rem;line-height:1.9;color:var(--text);}
+    footer{padding:40px;text-align:center;border-top:1px solid var(--border);font-family:var(--mono);font-size:.72rem;color:var(--muted);}
+    footer strong{color:var(--accent);}
+    .reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    .d1{transition-delay:.1s;} .d2{transition-delay:.2s;} .d3{transition-delay:.3s;}
+    @media(max-width:768px){
+      nav{padding:12px 20px;} .nav-links{display:none;}
+      .ig,.fbody,.tw,.rl,.bbg,.bbs,.fdg,.pc{grid-template-columns:1fr;}
+      .bf{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+
+<nav>
+  <div class="nav-logo" style="display: flex; align-items: center; gap: 10px;">
+    <img src="images/LOGO.png" alt="Logo" style="width: 24px; height: 24px; border-radius: 50%;">
+    // <span>ALE_GUERRERO</span> · 1ºASIR
+  </div>
+  <div class="nav-links">
+    <a href="#que-es">¿Qué es?</a>
+    <a href="#formatos">Formatos</a>
+    <a href="#como-funciona">Cómo funciona</a>
+    <a href="#decoder">Decoder</a>
+    <a href="#lector">Lector RSS</a>
+    <a href="#historia">Historia</a>
+    <a href="#proyecto-fisico">Demo en Vivo</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="bf bf1">RSS 2.0</div>
+  <div class="bf bf2">Atom 1.0</div>
+  <div class="bf bf3">JSON Feed</div>
+  <span class="hero-eyebrow">LENGUAJE DE MARCAS · 1º ASIR · ALE GUERRERO</span>
+  <h1>Internet<br><span class="hl">bajo tu control</span></h1>
+  <p class="hero-sub">
+    Cuando me pusieron este tema pensé que iba a ser un rollo. Spoiler: me equivoqué bastante.
+    La sindicación de contenidos es la tecnología que hace que internet funcione de verdad,
+    la que existía <strong>antes de que los algoritmos decidieran por ti</strong> lo que lees.
+  </p>
+  <div class="hero-cta">
+    <a href="#que-es" class="btn btn-p">Explorar el proyecto</a>
+    <a href="#lector" class="btn btn-g">Abrir el Lector RSS →</a>
+  </div>
+</header>
+
+<!-- QUÉ ES -->
+<section id="que-es" class="wrap">
+  <div class="sh reveal">
+    <span class="stag">01 — CONCEPTO</span>
+    <h2 class="stitle">¿Qué es la Sindicación?</h2>
+    <div class="lsep"></div>
+  </div>
+  <div class="ig">
+    <div class="it reveal d1">
+      <h3>Lo que yo entendí después de buscar bastante</h3>
+      <p>La sindicación de contenidos es básicamente un sistema para que las webs <strong>publiquen sus novedades en un formato estándar</strong> que cualquier programa pueda leer automáticamente. Sin que tengas que entrar tú a mirar si hay algo nuevo.</p>
+      <p>O sea, imagínate que sigues 20 blogs de tecnología. Sin RSS tendrías que entrar a los 20 cada día a ver si han publicado algo. Con RSS, <strong>es la web la que te avisa a ti</strong>. Sin publicidad de por medio. Sin que nadie decida qué ves primero.</p>
+      <p>Lo que más me sorprendió cuando investigué esto es que <strong>Spotify no aloja los podcasts</strong>. El audio está en el servidor del creador. Spotify solo lee el feed RSS del programa. Eso me pareció bastante elegante.</p>
+      <div class="abox">
+        <span class="lbl">// MI ANALOGÍA PARA ENTENDERLO</span>
+        <p>Es como si en vez de ir tú al quiosco cada mañana, el quiosquero te dejara todos los titulares en tu buzón, ya ordenados como tú quieres. El quiosquero es el servidor. Los titulares son el XML. Y tu lector de feeds es el buzón.</p>
+      </div>
+    </div>
+    <div class="xbox reveal d2">
+      <div class="xhead">
+        <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+        &nbsp;feed.xml — Anatomía de un fichero RSS
+      </div>
+      <pre>
+<span class="xt ann" data-tip="Declaración del tipo de documento XML">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+
+<span class="xt ann" data-tip="Elemento raíz: define que es RSS v2.0">&lt;rss <span class="xa">version</span>=<span class="xv">"2.0"</span>&gt;</span>
+
+  <span class="xt ann" data-tip="El canal: metadatos del feed completo">&lt;channel&gt;</span>
+
+    <span class="xt">&lt;title&gt;</span>Tech Syndication Feed<span class="xt">&lt;/title&gt;</span>
+    <span class="xt">&lt;link&gt;</span>https://aleguerrero.dev<span class="xt">&lt;/link&gt;</span>
+    <span class="xt">&lt;description&gt;</span>Noticias de tech<span class="xt">&lt;/description&gt;</span>
+
+    <span class="xt ann" data-tip="Cada item es un artículo del feed">&lt;item&gt;</span>
+      <span class="xt">&lt;title&gt;</span>Qué es RSS y por qué importa<span class="xt">&lt;/title&gt;</span>
+      <span class="xt">&lt;pubDate&gt;</span>Mon, 09 Jun 2025<span class="xt">&lt;/pubDate&gt;</span>
+      <span class="xt ann" data-tip="GUID: identificador único del artículo">&lt;guid&gt;</span>https://aleguerrero.dev/rss-101<span class="xt">&lt;/guid&gt;</span>
+    <span class="xt">&lt;/item&gt;</span>
+
+  <span class="xt">&lt;/channel&gt;</span>
+<span class="xt">&lt;/rss&gt;</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- FORMATOS -->
+<section id="formatos">
+  <div class="inner">
+    <div class="sh reveal">
+      <span class="stag">02 — FORMATOS</span>
+      <h2 class="stitle">RSS vs Atom vs JSON Feed</h2>
+      <div class="lsep"></div>
+    </div>
+    <div class="ftabs reveal">
+      <button class="ftab active" onclick="switchFmt('rss',this)">RSS 2.0</button>
+      <button class="ftab" onclick="switchFmt('atom',this)">Atom 1.0</button>
+      <button class="ftab" onclick="switchFmt('json',this)">JSON Feed</button>
+    </div>
+    <div class="fbody reveal d1" id="fdisplay"></div>
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section id="como-funciona" class="wrap">
+  <div class="sh reveal">
+    <span class="stag">03 — ARQUITECTURA</span>
+    <h2 class="stitle">Cómo viajan los datos</h2>
+    <div class="lsep"></div>
+  </div>
+  <div class="flow reveal">
+    <div class="fn"><div class="fi2">✍️</div><div class="fl">CREADOR</div></div>
+    <div class="fa">→</div>
+    <div class="fn"><div class="fi2">📄</div><div class="fl">FEED XML</div></div>
+    <div class="fa">→</div>
+    <div class="fn"><div class="fi2">🌐</div><div class="fl">SERVIDOR</div></div>
+    <div class="fa">→</div>
+    <div class="fn"><div class="fi2">🔄</div><div class="fl">AGREGADOR</div></div>
+    <div class="fa">→</div>
+    <div class="fn"><div class="fi2">👤</div><div class="fl">USUARIO</div></div>
+  </div>
+  <div class="fdg reveal d1">
+    <div class="fd">
+      <div class="step">PASO 01</div><h4>El creador publica</h4>
+      <p>Cuando se sube un artículo o episodio, el sistema actualiza automáticamente el fichero XML con la nueva entrada.</p>
+    </div>
+    <div class="fd">
+      <div class="step">PASO 02</div><h4>El servidor sirve el XML</h4>
+      <p>Cualquier cliente puede hacer una petición GET a la URL del feed y recibir el listado completo en formato estructurado.</p>
+    </div>
+    <div class="fd">
+      <div class="step">PASO 03</div><h4>El lector lo interpreta</h4>
+      <p>El agregador lee el XML, extrae title, description y link, y lo presenta al usuario de forma legible sin ningún algoritmo de por medio.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DECODER -->
+<section id="decoder">
+  <div class="inner">
+    <div class="sh reveal">
+      <span class="stag">04 — DEMO INTERACTIVA</span>
+      <h2 class="stitle">Syndication Decoder</h2>
+      <div class="lsep"></div>
+    </div>
+    <p class="reveal" style="font-family:var(--mono);font-size:.87rem;color:var(--muted);margin-bottom:32px;max-width:600px;">
+      Haz click en cualquier etiqueta XML del panel izquierdo. El panel derecho simulará cómo un agregador real interpretaría ese dato.
+    </p>
+    <div class="tw reveal">
+      <div class="tl">
+        <div class="th">
+          <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+          &nbsp; XML SOURCE — feed.xml
+        </div>
+        <div class="tb">
+          <div style="font-family:var(--mono);font-size:.82rem;line-height:1.7;">
+            <div style="color:var(--tag);">&lt;?xml version="1.0"?&gt;</div>
+            <div style="color:var(--tag);">&lt;rss version="2.0"&gt;</div>
+            <div style="color:var(--tag);padding-left:16px;">&lt;channel&gt;</div>
+            <div class="xc2" data-key="rss" style="padding-left:32px;">&lt;item id="rss"&gt; RSS — El origen &lt;/item&gt;</div>
+            <div class="xc2" data-key="atom" style="padding-left:32px;">&lt;item id="atom"&gt; Atom — El estándar &lt;/item&gt;</div>
+            <div class="xc2" data-key="json" style="padding-left:32px;">&lt;item id="json"&gt; JSON Feed — El futuro &lt;/item&gt;</div>
+            <div class="xc2" data-key="uso" style="padding-left:32px;">&lt;item id="uso"&gt; Casos de uso reales &lt;/item&gt;</div>
+            <div class="xc2" data-key="vs" style="padding-left:32px;">&lt;item id="vs"&gt; Sindicación vs Algoritmos &lt;/item&gt;</div>
+            <div style="color:var(--tag);padding-left:16px;">&lt;/channel&gt;</div>
+            <div style="color:var(--tag);">&lt;/rss&gt;</div>
+          </div>
+        </div>
+        <div class="sbar">
+          <div class="sdot"></div>
+          <span id="status-text">ESPERANDO INPUT — Selecciona un item para procesar</span>
+        </div>
+      </div>
+      <div class="tr">
+        <div class="th">⚙ LIVE PREVIEW — Interpretación del marcado</div>
+        <div class="tb" id="decoder-output">
+          <div class="es"><div class="ei">◈</div><span>Selecciona un elemento XML para ver su interpretación</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LECTOR RSS -->
+<section id="lector">
+  <div style="max-width:1200px;margin:0 auto;padding:100px 40px;">
+    <div class="sh reveal">
+      <span class="stag">05 — LECTOR RSS</span>
+      <h2 class="stitle">Feed de Tecnología en vivo</h2>
+      <div class="lsep"></div>
+    </div>
+    <p class="reveal" style="font-family:var(--mono);font-size:.87rem;color:var(--muted);margin-bottom:40px;max-width:680px;">
+      Este lector simula exactamente cómo funciona Feedly: carga artículos desde un feed XML, los parsea y los presenta al usuario. Haz click en cualquier artículo para ver también el XML que lo genera.
+    </p>
+    <div class="rl reveal">
+      <div class="rsb">
+        <div class="sbh">● FEED — tecnología</div>
+        <div id="feed-list"></div>
+      </div>
+      <div class="rc" id="article-view">
+        <div class="es"><div class="ei">📡</div><span>Selecciona un artículo del feed</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HISTORIA -->
+<section id="historia">
+  <div class="inner">
+    <div class="sh reveal">
+      <span class="stag">06 — HISTORIA</span>
+      <h2 class="stitle">La línea de tiempo</h2>
+      <div class="lsep"></div>
+    </div>
+    <div class="tl2">
+      <div class="tli reveal">
+        <div class="tldot"></div>
+        <div class="tly">1995 — 1999</div>
+        <h4>El origen: RDF y la idea de compartir</h4>
+        <p>Netscape lanza la primera versión de RSS para agregar noticias de varios portales. La idea es simple y revolucionaria: separar el contenido del diseño.</p>
+      </div>
+      <div class="tli reveal d1">
+        <div class="tldot"></div>
+        <div class="tly">2002 — 2005</div>
+        <h4>La guerra de los formatos</h4>
+        <p>RSS evoluciona a la versión 2.0. Paralelamente nace Atom como respuesta técnica más robusta. Google Reader se convierte en la referencia mundial.</p>
+      </div>
+      <div class="tli reveal d2">
+        <div class="tldot"></div>
+        <div class="tly">2013</div>
+        <h4>El "casi-fin" de RSS</h4>
+        <p>Google cierra Google Reader. Todo el mundo lo da por muerto. Pero sobreviven los que de verdad lo necesitan: podcasters, desarrolladores y periodistas.</p>
+      </div>
+      <div class="tli reveal d3">
+        <div class="tldot"></div>
+        <div class="tly">2017 — 2022</div>
+        <h4>JSON Feed y el renacimiento</h4>
+        <p>Nace JSON Feed. Los podcasts, adoptados masivamente por Spotify y Apple, demuestran que RSS no ha muerto: es la columna vertebral de toda la industria del audio.</p>
+      </div>
+      <div class="tli reveal">
+        <div class="tldot" style="border-color:var(--accent2)"></div>
+        <div class="tly" style="color:var(--accent2)">HOY</div>
+        <h4>El contrapeso a los algoritmos</h4>
+        <p>Con la crisis de confianza en las redes sociales, la sindicación resurge como herramienta de soberanía digital. El usuario quiere recuperar el control.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO EN VIVO QR -->
+<section id="proyecto-fisico">
+  <div style="max-width:1200px;margin:0 auto;padding:100px 40px;">
+    <div class="sh reveal">
+      <span class="stag">07 — DEMO EN VIVO</span>
+      <h2 class="stitle">Escanea y recibe el feed</h2>
+      <div class="lsep"></div>
+    </div>
+
+    <p class="reveal" style="font-family:var(--mono);font-size:.9rem;color:var(--muted);margin-bottom:48px;max-width:720px;line-height:1.9;">
+      Esta es la demo en vivo del proyecto. Introduces tu IP local, se genera el QR automáticamente,
+      lo escaneas con el móvil y en segundos los artículos del feed aparecen en tu app RSS.
+    </p>
+
+    <div class="bbg reveal">
+      <div class="bbt">
+        <h3>Cómo funciona la demo</h3>
+        <p>El PC sirve el archivo <strong>feed.xml</strong> por HTTP en la red local con un simple comando de Python. El QR codifica la URL de ese servidor.</p>
+        <p>Cuando el móvil escanea el QR, recibe la URL del feed. La app de RSS hace una petición GET a esa URL, descarga el XML, lo parsea y muestra los artículos.</p>
+        
+        <div style="margin-top:24px;">
+          <div style="font-family:var(--mono);font-size:.7rem;letter-spacing:.15em;color:var(--accent);margin-bottom:10px;">// CONFIGURACIÓN IP</div>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <input id="ip-input" type="text" value="192.168.1.251" placeholder="192.168.1.X"
+              style="font-family:var(--mono);font-size:.9rem;background:#0d1219;border:1px solid var(--accent);color:var(--accent);padding:10px 16px;border-radius:8px;outline:none;width:200px;"/>
+            <button onclick="generateQR()" style="font-family:var(--mono);font-size:.8rem;background:var(--accent);color:#070a0f;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;letter-spacing:.08em;">
+              GENERAR QR
+            </button>
+          </div>
+          <div style="font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:8px;">
+            Feed: <span id="feed-url-display" style="color:var(--accent);">feed://192.168.1.251:8080/feed.xml</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bbd">
+        <div style="font-family:var(--mono);font-size:.7rem;letter-spacing:.15em;color:var(--accent);margin-bottom:16px;">// QR DEL FEED EN VIVO</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:16px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:12px;padding:28px;">
+          <canvas id="qr-canvas" style="border-radius:8px;"></canvas>
+          <div id="qr-label" style="font-family:var(--mono);font-size:.72rem;color:var(--muted);text-align:center;">
+            Escanea para suscribirte
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sh reveal" style="margin-top:80px;">
+      <span class="stag">08 — EVIDENCIA</span>
+      <h2 class="stitle">Resultado en el Cliente</h2>
+      <div class="lsep"></div>
+    </div>
+
+    <div class="ig reveal" style="grid-template-columns: 1fr 1.2fr; align-items: center;">
+      <div class="it">
+        <h3>Sindicación en dispositivo móvil</h3>
+        <p>Para demostrar que el lenguaje de marcas cumple su función, he configurado un <strong>archivo XML estructurado</strong> siguiendo el estándar RSS 2.0.</p>
+        <p>Al procesar dicho archivo a través del servidor local, el cliente (el móvil) es capaz de interpretar los metadatos (títulos, fechas y descripciones) y presentarlos en una interfaz de usuario limpia.</p>
+        <div class="abox" style="border-left-color: var(--accent2);">
+          <span class="lbl" style="color:var(--accent2);">// EXPLICACIÓN TÉCNICA</span>
+          <p>No se ha diseñado una App. Se ha creado un <strong>fichero de datos (feed.xml)</strong>. El móvil solo actúa como intérprete del XML que hemos definido, demostrando la interoperabilidad total de la sindicación.</p>
+        </div>
+      </div>
+      
+      <div class="xbox" style="padding:10px; background: #0d1219; text-align: center;">
+         <img src="images/COMPROBACION.PNG" alt="Resultado en el móvil" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border); filter: brightness(0.9) contrast(1.1);">
+         <div style="font-family:var(--mono); font-size: 0.65rem; color: var(--muted); margin-top: 10px; letter-spacing: 1px;">
+           FIG 1.0: CAPTURA DE PANTALLA REAL DEL FEED RECIBIDO
+         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+    <!-- PASOS -->
+    <div class="bbs reveal" style="margin-top:48px;">
+      <div class="fd">
+        <div class="step">PASO 01 — SERVIDOR</div><h4>Lanzar el servidor HTTP</h4>
+        <p>En la carpeta donde está el feed.xml, ejecutar: <span style="color:var(--accent);font-family:var(--mono);">python -m http.server 8080</span>. El PC empieza a servir el archivo por la red local.</p>
+      </div>
+      <div class="fd">
+        <div class="step">PASO 02 — QR</div><h4>Generar y mostrar el QR</h4>
+        <p>Introducir la IP local del PC en el generador de arriba. El QR se genera automáticamente con la URL exacta del feed. Listo para escanear.</p>
+      </div>
+      <div class="fd">
+        <div class="step">PASO 03 — MÓVIL</div><h4>Escanear y suscribirse</h4>
+        <p>El móvil escanea el QR, abre la app RSS con la URL del feed ya cargada. En segundos aparecen todos los artículos. La demo funciona en cualquier móvil con app RSS.</p>
+      </div>
+    </div>
+
+    <div class="ig reveal" style="margin-top:48px; grid-template-columns: 1.2fr 1fr; align-items: stretch;">
+      
+      <div class="xbox" style="margin:0;">
+        <div class="xhead">
+          <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+          &nbsp;feed.xml — El origen de los datos
+        </div>
+        <pre style="padding: 24px; font-size: 0.78rem;">
+<span class="xt">&lt;?xml</span> <span class="xa">version</span>=<span class="xv">"1.0"</span> <span class="xa">encoding</span>=<span class="xv">"UTF-8"</span><span class="xt">?&gt;</span>
+<span class="xt">&lt;rss</span> <span class="xa">version</span>=<span class="xv">"2.0"</span><span class="xt">&gt;</span>
+  <span class="xt">&lt;channel&gt;</span>
+    <span class="xt">&lt;title&gt;</span>Feed de Ale Guerrero — 1º ASIR<span class="xt">&lt;/title&gt;</span>
+    <span class="xt">&lt;link&gt;</span>http://192.168.1.251:8080<span class="xt">&lt;/link&gt;</span>
+    <span class="xt">&lt;item&gt;</span>
+      <span class="xt">&lt;title&gt;</span>Qué es RSS y por qué importa<span class="xt">&lt;/title&gt;</span>
+      <span class="xt">&lt;description&gt;</span>El estándar más universal.<span class="xt">&lt;/description&gt;</span>
+      <span class="xt">&lt;pubDate&gt;</span>Mon, 09 Jun 2025<span class="xt">&lt;/pubDate&gt;</span>
+      <span class="xt">&lt;guid&gt;</span>item-001<span class="xt">&lt;/guid&gt;</span>
+    <span class="xt">&lt;/item&gt;</span>
+  <span class="xt">&lt;/channel&gt;</span>
+<span class="xt">&lt;/rss&gt;</span></pre>
+      </div>
+
+      <div class="cbox" style="margin:0; display: flex; flex-direction: column; justify-content: center;">
+        <span class="cl">// CONCLUSIÓN DE LA DEMO</span>
+        <p>Lo que demuestra este experimento es sencillo pero potente: el protocolo <strong>RSS funciona igual</strong> en un iPhone de última generación que en un móvil de hace 10 años. </p>
+        <p style="margin-top: 15px;">No depende de JavaScript ni de APIs propietarias. Solo necesita <strong>HTTP y XML</strong>. Dos tecnologías robustas que seguirán funcionando cuando muchas redes sociales actuales hayan desaparecido.</p>
+      </div>
+
+    </div>
+  </div> </section>
+
+<footer>
+  Proyecto de <strong>Lenguaje de Marcas</strong> — Sindicación de Contenidos · <strong>Ale Guerrero · 1º ASIR</strong><br>
+  <span style="margin-top:6px;display:block;font-size:.65rem;opacity:.5;">Construido con HTML5, CSS3 y JS vanilla. Cero frameworks. Demo física con BlackBerry incluida.</span>
+</footer>
+
+<script>
+function generateQR() {
+    // 1. Pillamos la IP del cuadro de texto
+    var ip = document.getElementById('ip-input').value.trim();
+    
+    // 2. Esta es la clave: usamos 'feed://' para que el iPhone abra la App de RSS directamente
+    // Pero la URL interna debe ser la de tu servidor Python
+    var urlParaQR = 'feed://' + ip + ':8080/feed.xml';
+    
+    // 3. Mostramos la URL normal en el texto por si acaso
+    document.getElementById('feed-url-display').textContent = 'http://' + ip + ':8080/feed.xml';
+
+    // 4. Generamos el QR con el protocolo de "auto-apertura"
+    var canvas = document.getElementById('qr-canvas');
+    new QRious({
+      element: canvas,
+      value: urlParaQR, 
+      size: 220,
+      foreground: '#00e5ff',
+      background: '#0d1219',
+      level: 'H'
+    });
+
+    // 5. Texto de ayuda para el vídeo
+    document.getElementById('qr-label').innerHTML =
+      '<span style="color:var(--accent2); font-weight:bold;">¡Listo para el vídeo!</span><br>' +
+      'Al escanearlo, NetNewsWire se abrirá solo.';
+  }
+
+  window.addEventListener('load', function() {
+    if (typeof QRious !== 'undefined') { generateQR(); }
+  });
+
+  /* Cursor glow */
+  var glow = document.getElementById('cursor-glow');
+  document.addEventListener('mousemove', function(e){
+    glow.style.left = e.clientX + 'px';
+    glow.style.top  = e.clientY + 'px';
+  });
+
+  /* Scroll reveal */
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, {threshold: 0.12});
+  document.querySelectorAll('.reveal').forEach(function(el){ obs.observe(el); });
+
+  /* FORMATOS */
+  var fmts = {
+    rss: {
+      name:'RSS 2.0', year:'Creado por Dave Winer — 2002',
+      desc:'El formato más veterano y extendido. Usa XML para estructurar un listado de entradas. Su éxito reside en su sencillez: cualquier servidor puede generarlo y cualquier cliente puede leerlo. Lo que más me llamó la atención cuando investigué: no hay ninguna empresa detrás controlándolo. Es un estándar abierto. Nadie puede cerrar RSS porque no es de nadie.',
+      pros:['Soporte universal','Millones de lectores compatibles','Sencillo de implementar','Muy documentado'],
+      cons:['Especificación ambigua en algunos puntos','Sin soporte nativo para XHTML','No hay tipo MIME oficial'],
+      code:'&lt;rss version="2.0"&gt;\n  &lt;channel&gt;\n    &lt;title&gt;Mi Feed&lt;/title&gt;\n    &lt;link&gt;https://aleguerrero.dev&lt;/link&gt;\n    &lt;item&gt;\n      &lt;title&gt;Artículo 1&lt;/title&gt;\n      &lt;guid&gt;https://aleguerrero.dev/1&lt;/guid&gt;\n    &lt;/item&gt;\n  &lt;/channel&gt;\n&lt;/rss&gt;'
+    },
+    atom: {
+      name:'Atom Syndication Format', year:'Estándar IETF RFC 4287 — 2005',
+      desc:'Atom nació porque RSS tenía partes ambiguas. ¿Es obligatorio poner descripción en un item? En RSS no queda claro. En Atom sí. Es más estricto, está mejor definido y es un estándar oficial aprobado por el IETF. La diferencia técnica más importante: Atom separa el resumen del contenido completo con etiquetas distintas, mientras que RSS lo mete todo en description.',
+      pros:['Estándar IETF oficial','Soporte completo para HTML','Identificadores únicos más robustos','Soporte multi-autor nativo'],
+      cons:['Más verboso que RSS','Menos popular en herramientas simples','Aprendizaje algo más pronunciado'],
+      code:'&lt;feed xmlns="http://www.w3.org/2005/Atom"&gt;\n  &lt;title&gt;Mi Feed Atom&lt;/title&gt;\n  &lt;id&gt;urn:uuid:a1b2-c3d4&lt;/id&gt;\n  &lt;updated&gt;2025-06-09T12:00:00Z&lt;/updated&gt;\n  &lt;entry&gt;\n    &lt;title&gt;Artículo 1&lt;/title&gt;\n    &lt;summary&gt;Resumen breve&lt;/summary&gt;\n    &lt;content type="html"&gt;Contenido&lt;/content&gt;\n  &lt;/entry&gt;\n&lt;/feed&gt;'
+    },
+    json: {
+      name:'JSON Feed 1.1', year:'Creado por Brent Simmons y Manton Reece — 2017',
+      desc:'En 2017 dos programadores se hicieron la pregunta que yo me hice cuando investigué esto: ¿por qué seguir usando XML cuando todo el mundo trabaja con JSON? Así nació JSON Feed. Es exactamente lo mismo que RSS pero en el lenguaje que usan las APIs modernas. Para mí es el más fácil de leer a primera vista.',
+      pros:['Legible para humanos','Nativo en ecosistemas JS/Node','Fácil de generar','Menos verboso'],
+      cons:['Menos soporte legacy','No en todos los lectores clásicos','Estándar más joven'],
+      code:'{\n  "version": "https://jsonfeed.org/version/1.1",\n  "title": "Mi JSON Feed",\n  "home_page_url": "https://aleguerrero.dev",\n  "items": [\n    {\n      "id": "https://aleguerrero.dev/1",\n      "title": "Artículo 1",\n      "summary": "Resumen",\n      "date_published": "2025-06-09T12:00:00Z"\n    }\n  ]\n}'
+    }
+  };
+
+  function switchFmt(key, btn) {
+    document.querySelectorAll('.ftab').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    var f = fmts[key];
+    var pros = f.pros.map(function(p){ return '<li>' + p + '</li>'; }).join('');
+    var cons = f.cons.map(function(c){ return '<li>' + c + '</li>'; }).join('');
+    document.getElementById('fdisplay').innerHTML =
+      '<div class="fi"><h3>' + f.name + '</h3><div class="meta">' + f.year + '</div><p>' + f.desc + '</p>' +
+      '<div class="pc"><div class="pro"><div class="bl">VENTAJAS</div><ul>' + pros + '</ul></div>' +
+      '<div class="con"><div class="bl">LIMITACIONES</div><ul>' + cons + '</ul></div></div></div>' +
+      '<div class="xbox"><div class="xhead"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>&nbsp;Ejemplo — ' + f.name + '</div>' +
+      '<pre style="padding:24px;font-family:var(--mono);font-size:.82rem;line-height:1.9;">' + f.code + '</pre></div>';
+  }
+  switchFmt('rss', document.querySelector('.ftab.active'));
+
+  /* DECODER */
+  var dec = {
+    rss:  { badge:'RSS 2.0',        title:'RSS — Really Simple Syndication',  body:'El formato que cambió cómo se distribuye el contenido en internet y que la mayoría de la gente usa sin saber que existe. Cuando te suscribes a un podcast en cualquier app, por debajo hay un archivo RSS. Lo que más me llamó la atención: no hay ninguna empresa detrás controlándolo. Es un estándar abierto. Nadie puede cerrar RSS porque no es de nadie.', extra:'Etiquetas clave: &lt;channel&gt;, &lt;item&gt;, &lt;title&gt;, &lt;link&gt;, &lt;pubDate&gt;, &lt;guid&gt;' },
+    atom: { badge:'Atom 1.0',       title:'Atom — El que quiso hacerlo mejor', body:'Atom apareció porque RSS tenía partes ambiguas. Es más estricto, está mejor definido y es un estándar oficial aprobado por el IETF. La diferencia técnica más importante: Atom separa el resumen del contenido completo con etiquetas distintas. Más trabajo de implementar pero más limpio.', extra:'Namespace: http://www.w3.org/2005/Atom — Etiquetas propias: &lt;entry&gt;, &lt;summary&gt;, &lt;content type="html"&gt;' },
+    json: { badge:'JSON Feed',      title:'JSON Feed — Para los que no quieren más XML', body:'En 2017 dos programadores se preguntaron: ¿por qué seguir usando XML cuando todo el mundo trabaja con JSON? Así nació JSON Feed. Es exactamente lo mismo que RSS pero en el formato que usan las APIs modernas. Si sabes algo de JavaScript ya entiendes la estructura sin necesidad de documentación.', extra:'Campos principales: version, title, feed_url, items[], id, url, content_text, date_published' },
+    uso:  { badge:'CASOS REALES',   title:'Dónde está la sindicación hoy',    body:'Podcasts: Spotify no aloja nada, lee el RSS del creador. Si el podcaster cambia de plataforma, sus suscriptores lo siguen sin enterarse. YouTube: cada canal tiene un feed Atom oculto. GitHub: cada repositorio tiene un feed Atom de commits. Substack: todas las newsletters tienen feed Atom, puedes leerlas sin registrarte.', extra:'URL feed YouTube: https://www.youtube.com/feeds/videos.xml?channel_id=TU_CHANNEL_ID' },
+    vs:   { badge:'OPINIÓN PROPIA', title:'¿Por qué Instagram y TikTok odian RSS?', body:'Las plataformas no quieren que uses RSS porque no pueden cobrarte si no estás en su app. Su negocio es tenerte dentro el máximo tiempo posible para mostrarte anuncios. Twitter eliminó su API RSS en 2012. Facebook nunca tuvo feeds públicos. LinkedIn los desactivó sin avisar. No es un accidente técnico, es una decisión de negocio.', extra:'"RSS is not dead, it just grew up" — Marco Arment, creador de Overcast' }
+  };
+
+  document.querySelectorAll('.xc2').forEach(function(el){
+    el.addEventListener('click', function(){
+      document.querySelectorAll('.xc2').forEach(function(x){ x.classList.remove('active'); });
+      el.classList.add('active');
+      var k = el.dataset.key;
+      var d = dec[k];
+      document.getElementById('status-text').textContent = 'PROCESANDO: <' + k + '/> — renderizando output...';
+      document.getElementById('decoder-output').innerHTML =
+        '<div class="lcard"><span class="lbadge">' + d.badge + '</span><h3>' + d.title + '</h3><p>' + d.body + '</p>' +
+        '<div style="margin-top:20px;background:rgba(0,0,0,.4);border-radius:6px;padding:12px 16px;">' +
+        '<span style="font-family:var(--mono);font-size:.7rem;color:var(--accent);display:block;margin-bottom:6px;letter-spacing:.1em;">// REFERENCIA TÉCNICA</span>' +
+        '<span style="font-family:var(--mono);font-size:.77rem;color:var(--muted);">' + d.extra + '</span></div></div>';
+      setTimeout(function(){ document.getElementById('status-text').textContent = 'OK — item "' + k + '" renderizado correctamente'; }, 800);
+    });
+  });
+
+  /* LECTOR RSS */
+  var arts = [
+    { cat:'FUNDAMENTOS', title:'Por qué el RSS sigue siendo la mejor API del mundo', date:'09 Jun 2025 — 09:41 UTC', author:'Ale Guerrero',
+      body:'Cuando empecé a investigar este tema pensé que RSS era algo anticuado. Cuanto más leí, más me di cuenta de que me equivocaba bastante.\n\nLa API más confiable y longeva de la web tiene más de 25 años. Se llama RSS y prácticamente ninguna empresa puede eliminarla porque es un estándar abierto, no un servicio de ninguna empresa.\n\nLas APIs de Google, Twitter o Facebook pueden desactivarse de un día para otro. Un feed RSS pertenece al servidor que lo genera. Nadie puede quitártelo.\n\nCuando un podcast crea su feed RSS, ese audio y esos metadatos son completamente suyos. Spotify puede indexarlos, Apple puede indexarlos, pero el contenido nunca deja de pertenecer al creador. Eso es exactamente lo contrario de subir un vídeo a YouTube.',
+      xml:'&lt;item&gt;\n  &lt;title&gt;Por qué RSS sigue siendo la mejor API&lt;/title&gt;\n  &lt;pubDate&gt;Mon, 09 Jun 2025 09:41:00 +0000&lt;/pubDate&gt;\n  &lt;author&gt;Ale Guerrero&lt;/author&gt;\n  &lt;guid isPermaLink="true"&gt;https://aleguerrero.dev/rss-101&lt;/guid&gt;\n  &lt;category&gt;Fundamentos&lt;/category&gt;\n&lt;/item&gt;' },
+    { cat:'PODCAST', title:'Cómo funciona el ecosistema podcast por dentro', date:'08 Jun 2025 — 14:20 UTC', author:'Ale Guerrero',
+      body:'Esto me pareció de las cosas más interesantes que encontré. Mucha gente cree que subir un podcast a Spotify significa alojar el audio en Spotify. La realidad técnica es completamente diferente.\n\nEl podcaster sube el audio MP3 a su propio servidor. Ese servicio genera automáticamente un feed RSS con la etiqueta enclosure, que es la etiqueta específica para adjuntar archivos de audio o video.\n\nSpotify, Apple Podcasts y el resto de apps no alojan nada. Solo leen ese feed RSS cada cierto tiempo, detectan los nuevos episodios y los indexan.\n\nLa consecuencia práctica: si el podcaster cambia de plataforma, simplemente redirige la URL del feed y todos sus suscriptores lo siguen sin perder ni un episodio. Eso con YouTube es imposible.',
+      xml:'&lt;item&gt;\n  &lt;title&gt;Cómo funciona el ecosistema podcast&lt;/title&gt;\n  &lt;enclosure url="https://podcast.dev/ep01.mp3" length="24986239" type="audio/mpeg"/&gt;\n  &lt;pubDate&gt;Sun, 08 Jun 2025 14:20:00 +0000&lt;/pubDate&gt;\n&lt;/item&gt;' },
+    { cat:'HISTORIA', title:'Google Reader: el día que casi matan RSS', date:'07 Jun 2025 — 11:05 UTC', author:'Ale Guerrero',
+      body:'El 13 de marzo de 2013 Google anunció el cierre de Google Reader. Tenía más de 30 millones de usuarios activos. Todo el mundo lo dio por muerto.\n\nNo murió. Se adaptó. Surgieron Feedly, Inoreader y NewsBlur. Los podcasters vieron en RSS la única forma de distribuir contenido sin depender de una sola plataforma.\n\nLo que más me llamó la atención cuando investigué esto: Google no cerró Reader por falta de usuarios. Lo cerró porque no encajaba con la estrategia de Google+, la red social que intentaban impulsar en ese momento.\n\nAl final Google+ duró hasta 2019 y fue un fracaso total. RSS sigue aquí.',
+      xml:'&lt;item&gt;\n  &lt;title&gt;Google Reader: el día que casi matan RSS&lt;/title&gt;\n  &lt;pubDate&gt;Sat, 07 Jun 2025 11:05:00 +0000&lt;/pubDate&gt;\n  &lt;description&gt;Historia del cierre de Google Reader.&lt;/description&gt;\n  &lt;category&gt;Historia&lt;/category&gt;\n&lt;/item&gt;' },
+    { cat:'TÉCNICO', title:'Errores comunes al crear un feed RSS (los que cometí yo)', date:'06 Jun 2025 — 16:33 UTC', author:'Ale Guerrero',
+      body:'Cuando intenté crear mi propio feed RSS para este proyecto me encontré con varios errores que no eran nada obvios.\n\n1. Tildes y caracteres especiales. Si el feed dice que usa UTF-8 pero hay caracteres mal codificados, el parser falla sin dar ningún error útil.\n\n2. HTML sin escapar dentro de etiquetas de texto. Las etiquetas HTML tienen que escaparse o envolverse en CDATA. Si no, el parser XML explota.\n\n3. GUIDs duplicados. Cada item necesita un identificador único. Si dos items tienen el mismo GUID, los lectores no saben si es el mismo contenido o contenido diferente.\n\n4. Formato de fecha incorrecto. RSS usa el formato RFC 822. Si pones la fecha en otro formato muchos lectores la ignoran.',
+      xml:'&lt;item&gt;\n  &lt;title&gt;Errores comunes en RSS&lt;/title&gt;\n  &lt;description&gt;\n    &lt;![CDATA[\n      &lt;p&gt;Contenido HTML seguro&lt;/p&gt;\n    ]]&gt;\n  &lt;/description&gt;\n  &lt;guid isPermaLink="false"&gt;uuid-4f2a-9b1c-7e3d&lt;/guid&gt;\n&lt;/item&gt;' },
+    { cat:'REFLEXIÓN', title:'Por qué creo que RSS va a seguir otros 25 años', date:'05 Jun 2025 — 08:17 UTC', author:'Ale Guerrero',
+      body:'Cuando empecé este trabajo no sabía muy bien qué era la sindicación de contenidos. Ahora que lo he investigado tengo una opinión bastante clara sobre por qué sigue siendo relevante.\n\nLas redes sociales controlan lo que ves. Instagram decide quién te ve cuando publicas. El algoritmo puede reducir tu alcance si no usas las funciones que les interesan. Pueden suspender tu cuenta sin explicaciones.\n\nCon un feed RSS, cualquier persona puede suscribirse directamente. No hay intermediario. Si alguien se suscribe a tu feed, recibirá cada entrada que publiques, en el mismo orden, sin filtros.\n\nLo que me parece más curioso es que esto ya lo hacía la gente en los años 90, antes de que existieran las redes sociales. Parece que hemos dado un rodeo enorme para volver al mismo punto de partida.',
+      xml:'&lt;item&gt;\n  &lt;title&gt;Por qué RSS va a seguir otros 25 años&lt;/title&gt;\n  &lt;author&gt;Ale Guerrero&lt;/author&gt;\n  &lt;pubDate&gt;Thu, 05 Jun 2025 08:17:00 +0000&lt;/pubDate&gt;\n  &lt;category&gt;Reflexión&lt;/category&gt;\n&lt;/item&gt;' }
+  ];
+
+  var fl = document.getElementById('feed-list');
+  arts.forEach(function(a){
+    var btn = document.createElement('button');
+    btn.className = 'fib';
+    btn.innerHTML = '<div class="fic">' + a.cat + '</div><div class="fit">' + a.title + '</div><div class="fid">' + a.date.split(' — ')[0] + '</div>';
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.fib').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('article-view').innerHTML =
+        '<div class="rccat">' + a.cat + '</div>' +
+        '<h2 class="rctit">' + a.title + '</h2>' +
+        '<div class="rcmet">Por ' + a.author + ' — ' + a.date + '</div>' +
+        '<div class="rcbod">' + a.body.replace(/\n\n/g,'<br><br>') + '</div>' +
+        '<div class="rcxml"><div class="xmlhb"><span>XML SOURCE — item de este artículo</span><span style="color:var(--accent)">RSS 2.0</span></div>' +
+        '<div class="xmls"><pre>' + a.xml + '</pre></div></div>';
+    });
+    fl.appendChild(btn);
+  });
+</script>
+</body>
+</html>
